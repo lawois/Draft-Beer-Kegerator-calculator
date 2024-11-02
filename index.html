@@ -12,8 +12,8 @@
     <label>Beer Line Length (feet):</label>
     <input type="number" id="lineLength" value="5"><br>
 
-    <label>Line Diameter (3/16 or 1/4):</label>
-    <input type="text" id="lineDiameter" value="3/16"><br>
+    <label>Line Resistance per Foot (PSI per foot, default is 2.2 for 3/16" line):</label>
+    <input type="number" id="lineResistance" value="2.2" step="0.1"><br>
 
     <label>Temperature (Celsius):</label>
     <input type="number" id="temperature" value="3"><br>
@@ -35,7 +35,7 @@
         function calculateRegulatorPressure() {
             // Get values from input fields
             let lineLength = parseFloat(document.getElementById("lineLength").value);
-            let lineDiameter = document.getElementById("lineDiameter").value;
+            let lineResistance = parseFloat(document.getElementById("lineResistance").value);
             let temperatureCelsius = parseFloat(document.getElementById("temperature").value);
             let carbonationLevel = parseFloat(document.getElementById("carbonationLevel").value);
             let kegHeightDifference = parseFloat(document.getElementById("kegHeightDifference").value);
@@ -43,21 +43,18 @@
             // Convert Celsius to Fahrenheit
             let temperature = (temperatureCelsius * 9/5) + 32;
 
-            // Set resistance per foot based on line diameter
-            let resistancePerFoot = (lineDiameter === "3/16") ? 2 : 0.5;
-
             // Approximate equilibrium pressure based on temperature and carbonation
-            // In a full calculator, you'd use a lookup table, but we'll approximate here
+            // If temperature is 38°F and carbonation level is 2.5, equilibrium pressure is around 12 PSI
             let equilibriumPressure;
             if (temperature === 38 && carbonationLevel === 2.5) {
-                equilibriumPressure = 12;  // PSI approximation for typical values
+                equilibriumPressure = 12;
             } else {
-                // Here we use an approximate formula for equilibrium pressure if values deviate
+                // Using a basic approximation for equilibrium pressure if not at standard values
                 equilibriumPressure = (carbonationLevel - 1) * 7.5 + ((temperature - 32) / 10);
             }
 
             // Calculate line pressure drop and gravity adjustment
-            let linePressureDrop = lineLength * resistancePerFoot;
+            let linePressureDrop = lineLength * lineResistance;
             let gravityAdjustment = 0.5 * kegHeightDifference;
 
             // Calculate required PSI at the regulator to balance the system
