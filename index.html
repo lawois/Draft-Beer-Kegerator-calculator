@@ -1,101 +1,120 @@
+Here’s an enhanced version of the Beer Line Length Calculator with:
+- **Explanations** of each input and its importance.
+- A **dropdown menu** for common beer styles with default carbonation levels.
+- An **interactive carbonation chart link** for further reference.
+
+This will make it more user-friendly and informative, helping users understand why each input matters for a balanced draft beer system.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draft Beer Regulator Pressure Calculator</title>
-    <!-- Include Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Beer Line Length Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; }
+        label { display: block; margin-top: 10px; }
+        .info { font-size: 0.9em; color: #555; }
+    </style>
 </head>
 <body>
-    <h1>Draft Beer System Balancer</h1>
+    <h1>Beer Line Length Calculator</h1>
+    <p>This calculator helps you find the correct beer line length for a balanced pour based on your system's regulator pressure and line resistance. This helps prevent foaming and ensures the beer stays carbonated at the correct level.</p>
+    
+    <!-- Beer Type Selection with Carbonation Defaults -->
+    <label>Choose Beer Type:</label>
+    <select id="beerType" onchange="setCarbonationLevel()">
+        <option value="2.2">Lager (2.2 Vol CO₂)</option>
+        <option value="2.4">Pilsner (2.4 Vol CO₂)</option>
+        <option value="2.6">Ale (2.6 Vol CO₂)</option>
+        <option value="2.8">Wheat Beer (2.8 Vol CO₂)</option>
+        <option value="3.0">Saison (3.0 Vol CO₂)</option>
+    </select>
+    <p class="info">Select your beer type to set a carbonation level. Different beer styles are traditionally served with different levels of carbonation.</p>
 
     <!-- Input fields for Calculator -->
-    <label>Beer Line Length (feet):</label>
-    <input type="number" id="lineLength" value="5"><br>
+    <label>Regulator Pressure (PSI):</label>
+    <input type="number" id="regulatorPressure" value="11">
+    <p class="info">The pressure set at the regulator based on your desired carbonation level and storage temperature.</p>
 
-    <label>Line Resistance per Foot (PSI per foot, default is 2.2 for 3/16" line):</label>
-    <input type="number" id="lineResistance" value="2.2" step="0.1"><br>
-
-    <label>Temperature (Celsius):</label>
-    <input type="number" id="temperature" value="3"><br>
-
-    <label>Carbonation Level (volumes CO2):</label>
-    <input type="number" id="carbonationLevel" value="2.5"><br>
+    <label>Line Resistance per Foot (PSI per foot):</label>
+    <input type="number" id="lineResistance" value="2" step="0.1">
+    <p class="info">For a 3/16" beer line, the default resistance is about 2 PSI per foot. Larger diameter lines have lower resistance.</p>
 
     <label>Keg Height Difference (feet):</label>
-    <input type="number" id="kegHeightDifference" value="0"><br>
+    <input type="number" id="kegHeightDifference" value="0">
+    <p class="info">If the keg is below the faucet, set the height difference in feet. This affects the required pressure to push the beer upward.</p>
 
     <!-- Calculate button -->
-    <button onclick="calculateRegulatorPressure()">Calculate Required Regulator Pressure</button>
+    <button onclick="calculateBeerLineLength()">Calculate Beer Line Length</button>
 
     <!-- Output section -->
     <h2>Results</h2>
     <p id="output"></p>
 
-    <!-- Chart section -->
-    <h2>Equilibrium Pressure Chart</h2>
-    <div id="chart"></div>
+    <!-- Carbonation Chart Information -->
+    <h2>Carbonation Chart Reference</h2>
+    <p>If you'd like to see a detailed carbonation chart for different beer styles, check out <a href="https://www.kegerators.com/articles/carb-chart/" target="_blank">this guide on carbonation levels</a>.</p>
 
     <script>
-        function calculateRegulatorPressure() {
-            // Get values from input fields
-            let lineLength = parseFloat(document.getElementById("lineLength").value);
-            let lineResistance = parseFloat(document.getElementById("lineResistance").value);
-            let temperatureCelsius = parseFloat(document.getElementById("temperature").value);
-            let carbonationLevel = parseFloat(document.getElementById("carbonationLevel").value);
-            let kegHeightDifference = parseFloat(document.getElementById("kegHeightDifference").value);
+        function setCarbonationLevel() {
+            const beerType = document.getElementById("beerType");
+            const carbonationLevel = parseFloat(beerType.value);
+            const temperatureCelsius = 3; // Set a default temperature for calculation
 
-            // Convert Celsius to Fahrenheit
-            let temperature = (temperatureCelsius * 9/5) + 32;
-
-            // Approximate equilibrium pressure based on temperature and carbonation
+            // Estimate the equilibrium pressure needed for the selected carbonation level
             let equilibriumPressure;
-            if (temperature === 38 && carbonationLevel === 2.5) {
-                equilibriumPressure = 12;
+            if (carbonationLevel === 2.2 && temperatureCelsius === 3) {
+                equilibriumPressure = 10.8;  // for Lager at 3°C
+            } else if (carbonationLevel === 2.4 && temperatureCelsius === 3) {
+                equilibriumPressure = 11.5;  // for Pilsner at 3°C
+            } else if (carbonationLevel === 2.6 && temperatureCelsius === 3) {
+                equilibriumPressure = 12.3;  // for Ale at 3°C
+            } else if (carbonationLevel === 2.8 && temperatureCelsius === 3) {
+                equilibriumPressure = 13.0;  // for Wheat Beer at 3°C
+            } else if (carbonationLevel === 3.0 && temperatureCelsius === 3) {
+                equilibriumPressure = 13.7;  // for Saison at 3°C
             } else {
-                equilibriumPressure = (carbonationLevel - 1) * 7.5 + ((temperature - 32) / 10);
+                equilibriumPressure = 11; // default to typical draft setup
             }
 
-            // Calculate line pressure drop and gravity adjustment
-            let linePressureDrop = lineLength * lineResistance;
+            // Set recommended regulator pressure for selected beer type
+            document.getElementById("regulatorPressure").value = equilibriumPressure.toFixed(1);
+        }
+
+        function calculateBeerLineLength() {
+            // Get values from input fields
+            let regulatorPressure = parseFloat(document.getElementById("regulatorPressure").value);
+            let lineResistance = parseFloat(document.getElementById("lineResistance").value);
+            let kegHeightDifference = parseFloat(document.getElementById("kegHeightDifference").value);
+
+            // Calculate gravity adjustment (0.5 PSI per foot of height difference)
             let gravityAdjustment = 0.5 * kegHeightDifference;
 
-            // Calculate required PSI at the regulator to balance the system
-            let requiredPSI = equilibriumPressure + linePressureDrop + gravityAdjustment;
+            // Calculate total pressure drop required in the line
+            let totalPressureDrop = regulatorPressure - gravityAdjustment;
+
+            // Calculate required line length
+            let lineLength = totalPressureDrop / lineResistance;
 
             // Display the result
             document.getElementById("output").innerText = 
-                `Required Regulator Pressure: ${requiredPSI.toFixed(2)} PSI`;
+                `Required Beer Line Length: ${lineLength.toFixed(2)} feet`;
         }
 
-        // Chart Data
-        function drawChart() {
-            const temperatures = Array.from({length: 19}, (_, i) => i + 32); // Temperatures from 32°F to 50°F
-            const carbonationLevels = [2.2, 2.5, 2.7, 3.0];
-
-            const data = carbonationLevels.map(level => {
-                const pressures = temperatures.map(temp => (level - 1) * 7.5 + ((temp - 32) / 10));
-                return {
-                    x: temperatures,
-                    y: pressures,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: `${level} Vol CO2`
-                };
-            });
-
-            const layout = {
-                title: 'Equilibrium Pressure Required for Different Carbonation Levels',
-                xaxis: { title: 'Temperature (°F)' },
-                yaxis: { title: 'Pressure (PSI)' }
-            };
-
-            Plotly.newPlot('chart', data, layout);
-        }
-
-        // Draw the chart on page load
-        drawChart();
+        // Set default carbonation level on page load
+        setCarbonationLevel();
     </script>
 </body>
 </html>
+```
+
+### Enhancements Explained
+
+1. **Beer Type Selection**: A dropdown allows users to select a beer type (like Lager, Pilsner, Ale), which sets the default carbonation level.
+2. **Default Equilibrium Pressure Calculation**: Based on the selected carbonation level and a typical fridge temperature (3°C), the script sets a recommended regulator pressure.
+3. **Explanations for Inputs**: Each input field has an explanation to help users understand its purpose.
+4. **Carbonation Chart Link**: Users can click a link to view a detailed carbonation chart on an external site if they need further reference.
+
+This enhanced version provides users with both the calculator and educational context, guiding them to make well-informed decisions about their draft beer setup.
