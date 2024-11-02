@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Draft Beer Regulator Pressure Calculator</title>
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <h1>Draft Beer System Balancer</h1>
-    
-    <!-- Input fields -->
+
+    <!-- Input fields for Calculator -->
     <label>Beer Line Length (feet):</label>
     <input type="number" id="lineLength" value="5"><br>
 
@@ -31,6 +33,10 @@
     <h2>Results</h2>
     <p id="output"></p>
 
+    <!-- Chart section -->
+    <h2>Equilibrium Pressure Chart</h2>
+    <div id="chart"></div>
+
     <script>
         function calculateRegulatorPressure() {
             // Get values from input fields
@@ -44,12 +50,10 @@
             let temperature = (temperatureCelsius * 9/5) + 32;
 
             // Approximate equilibrium pressure based on temperature and carbonation
-            // If temperature is 38°F and carbonation level is 2.5, equilibrium pressure is around 12 PSI
             let equilibriumPressure;
             if (temperature === 38 && carbonationLevel === 2.5) {
                 equilibriumPressure = 12;
             } else {
-                // Using a basic approximation for equilibrium pressure if not at standard values
                 equilibriumPressure = (carbonationLevel - 1) * 7.5 + ((temperature - 32) / 10);
             }
 
@@ -64,6 +68,34 @@
             document.getElementById("output").innerText = 
                 `Required Regulator Pressure: ${requiredPSI.toFixed(2)} PSI`;
         }
+
+        // Chart Data
+        function drawChart() {
+            const temperatures = Array.from({length: 19}, (_, i) => i + 32); // Temperatures from 32°F to 50°F
+            const carbonationLevels = [2.2, 2.5, 2.7, 3.0];
+
+            const data = carbonationLevels.map(level => {
+                const pressures = temperatures.map(temp => (level - 1) * 7.5 + ((temp - 32) / 10));
+                return {
+                    x: temperatures,
+                    y: pressures,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: `${level} Vol CO2`
+                };
+            });
+
+            const layout = {
+                title: 'Equilibrium Pressure Required for Different Carbonation Levels',
+                xaxis: { title: 'Temperature (°F)' },
+                yaxis: { title: 'Pressure (PSI)' }
+            };
+
+            Plotly.newPlot('chart', data, layout);
+        }
+
+        // Draw the chart on page load
+        drawChart();
     </script>
 </body>
 </html>
