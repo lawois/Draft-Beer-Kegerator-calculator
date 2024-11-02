@@ -3,23 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beer Line Length Calculator</title>
+    <title>Enhanced Beer Line Length Calculator</title>
     <style>
-        /* General page styling */
+        /* General styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
             color: #333;
-            max-width: 600px;
+            max-width: 700px;
             margin: 20px auto;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Dark mode styling */
+        body.dark-mode {
+            background-color: #333;
+            color: #f9f9f9;
+        }
 
         h1, h2 {
             color: #2c3e50;
+        }
+
+        h1.dark-mode, h2.dark-mode {
+            color: #f1c40f;
         }
 
         p.info {
@@ -33,6 +43,10 @@
             display: block;
             margin-top: 15px;
             color: #34495e;
+        }
+
+        label.dark-mode {
+            color: #f1c40f;
         }
 
         input, select, button {
@@ -58,6 +72,11 @@
             background-color: #2980b9;
         }
 
+        .dark-mode button {
+            background-color: #f1c40f;
+            color: #333;
+        }
+
         #output {
             font-weight: bold;
             font-size: 1.1em;
@@ -78,6 +97,11 @@
             border-radius: 4px;
         }
 
+        .dark-mode .link-section {
+            background-color: #555;
+            color: #f9f9f9;
+        }
+
         a {
             color: #3498db;
             text-decoration: none;
@@ -85,6 +109,28 @@
 
         a:hover {
             text-decoration: underline;
+        }
+
+        /* Tooltip styling */
+        .tooltip {
+            position: relative;
+            cursor: pointer;
+            color: #3498db;
+            text-decoration: underline;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 0;
+            top: 110%;
+            background: #555;
+            color: #fff;
+            padding: 5px;
+            font-size: 0.85em;
+            border-radius: 4px;
+            white-space: nowrap;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
+            z-index: 10;
         }
     </style>
 </head>
@@ -100,8 +146,16 @@
         <option value="2.6">Ale (2.6 Vol CO₂)</option>
         <option value="2.8">Wheat Beer (2.8 Vol CO₂)</option>
         <option value="3.0">Saison (3.0 Vol CO₂)</option>
+        <option value="other">Other</option>
     </select>
     <p class="info">Select your beer type to set a carbonation level. Different beer styles are traditionally served with different levels of carbonation.</p>
+
+    <!-- Custom Carbonation Level -->
+    <div id="customCarbonation" style="display: none;">
+        <label>Custom Carbonation Level (Vol CO₂):</label>
+        <input type="number" id="customCO2Level" value="2.5" step="0.1" onchange="setCustomCO2Level()">
+        <p class="info">Enter a custom carbonation level if your beer type is not listed above.</p>
+    </div>
 
     <!-- Input fields for Calculator -->
     <label>Regulator Pressure (PSI):</label>
@@ -123,6 +177,11 @@
     <h2>Results</h2>
     <p id="output">Your results will appear here.</p>
 
+    <!-- Dark Mode Toggle -->
+    <label>Dark Mode:</label>
+    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
+    <p class="info">Switch to dark mode for a low-light friendly version of the calculator.</p>
+
     <!-- Carbonation Chart Information -->
     <div class="link-section">
         <h2>Carbonation Chart Reference</h2>
@@ -131,28 +190,26 @@
 
     <script>
         function setCarbonationLevel() {
-            const beerType = document.getElementById("beerType");
-            const carbonationLevel = parseFloat(beerType.value);
-            const temperatureCelsius = 3; // Set a default temperature for calculation
-
-            // Estimate the equilibrium pressure needed for the selected carbonation level
-            let equilibriumPressure;
-            if (carbonationLevel === 2.2 && temperatureCelsius === 3) {
-                equilibriumPressure = 10.8;  // for Lager at 3°C
-            } else if (carbonationLevel === 2.4 && temperatureCelsius === 3) {
-                equilibriumPressure = 11.5;  // for Pilsner at 3°C
-            } else if (carbonationLevel === 2.6 && temperatureCelsius === 3) {
-                equilibriumPressure = 12.3;  // for Ale at 3°C
-            } else if (carbonationLevel === 2.8 && temperatureCelsius === 3) {
-                equilibriumPressure = 13.0;  // for Wheat Beer at 3°C
-            } else if (carbonationLevel === 3.0 && temperatureCelsius === 3) {
-                equilibriumPressure = 13.7;  // for Saison at 3°C
+            const beerType = document.getElementById("beerType").value;
+            const customCO2 = document.getElementById("customCarbonation");
+            if (beerType === "other") {
+                customCO2.style.display = "block";
             } else {
-                equilibriumPressure = 11; // default to typical draft setup
+                customCO2.style.display = "none";
+                const carbonationLevel = parseFloat(beerType);
+                document.getElementById("regulatorPressure").value = calculateEquilibriumPressure(carbonationLevel, 3);
             }
+        }
 
-            // Set recommended regulator pressure for selected beer type
-            document.getElementById("regulatorPressure").value = equilibriumPressure.toFixed(1);
+        function setCustomCO2Level() {
+            const customCO2Level = parseFloat(document.getElementById("customCO2Level").value);
+            document.getElementById("regulatorPressure").value = calculateEquilibriumPressure(customCO2Level, 3);
+        }
+
+        function calculateEquilibriumPressure(carbonationLevel, temperatureCelsius) {
+            // Approximate equilibrium pressure for various carbonation levels
+            const tempF = (temperatureCelsius * 9/5) + 32;
+            return ((carbonationLevel - 1) * 5) + ((tempF - 32) / 10);
         }
 
         function calculateBeerLineLength() {
@@ -175,8 +232,11 @@
                 `Required Beer Line Length: ${lineLength.toFixed(2)} feet`;
         }
 
-        // Set default carbonation level on page load
-        setCarbonationLevel();
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const elements = document.querySelectorAll('h1, h2, label, p.info, #output');
+            elements.forEach(el => el.classList.toggle('dark-mode'));
+        }
     </script>
 </body>
 </html>
