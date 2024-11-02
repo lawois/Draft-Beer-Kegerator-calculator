@@ -5,9 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beer Line Length Calculator</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; }
-        label { display: block; margin-top: 10px; }
-        .info { font-size: 0.9em; color: #555; }
+        /* General page styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        p.info {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: -5px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            color: #34495e;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #output {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #eaf2f8;
+            border: 1px solid #d6eaf8;
+            border-radius: 4px;
+        }
+
+        .link-section {
+            margin-top: 20px;
+            font-size: 0.9em;
+            background-color: #f2f3f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -43,11 +121,13 @@
 
     <!-- Output section -->
     <h2>Results</h2>
-    <p id="output"></p>
+    <p id="output">Your results will appear here.</p>
 
     <!-- Carbonation Chart Information -->
-    <h2>Carbonation Chart Reference</h2>
-    <p>If you'd like to see a detailed carbonation chart for different beer styles, check out <a href="https://www.kegerators.com/articles/carb-chart/" target="_blank">this guide on carbonation levels</a>.</p>
+    <div class="link-section">
+        <h2>Carbonation Chart Reference</h2>
+        <p>If you'd like to see a detailed carbonation chart for different beer styles, check out <a href="https://www.kegerators.com/articles/carb-chart/" target="_blank">this guide on carbonation levels</a>.</p>
+    </div>
 
     <script>
         function setCarbonationLevel() {
