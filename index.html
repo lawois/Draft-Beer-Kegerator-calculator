@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draft Beer Calculator</title>
+    <title>Draft Beer Regulator Pressure Calculator</title>
 </head>
 <body>
     <h1>Draft Beer System Balancer</h1>
@@ -18,9 +18,6 @@
     <label>Temperature (Celsius):</label>
     <input type="number" id="temperature" value="3"><br>
 
-    <label>Regulator Pressure (PSI):</label>
-    <input type="number" id="regulatorPressure" value="12"><br>
-
     <label>Carbonation Level (volumes CO2):</label>
     <input type="number" id="carbonationLevel" value="2.5"><br>
 
@@ -28,19 +25,18 @@
     <input type="number" id="kegHeightDifference" value="0"><br>
 
     <!-- Calculate button -->
-    <button onclick="calculatePSI()">Calculate Required PSI</button>
+    <button onclick="calculateRegulatorPressure()">Calculate Required Regulator Pressure</button>
 
     <!-- Output section -->
     <h2>Results</h2>
     <p id="output"></p>
 
     <script>
-        function calculatePSI() {
+        function calculateRegulatorPressure() {
             // Get values from input fields
             let lineLength = parseFloat(document.getElementById("lineLength").value);
             let lineDiameter = document.getElementById("lineDiameter").value;
             let temperatureCelsius = parseFloat(document.getElementById("temperature").value);
-            let regulatorPressure = parseFloat(document.getElementById("regulatorPressure").value);
             let carbonationLevel = parseFloat(document.getElementById("carbonationLevel").value);
             let kegHeightDifference = parseFloat(document.getElementById("kegHeightDifference").value);
 
@@ -50,19 +46,26 @@
             // Set resistance per foot based on line diameter
             let resistancePerFoot = (lineDiameter === "3/16") ? 2 : 0.5;
 
-            // Equilibrium pressure approximation (e.g., 12 PSI for typical 38°F, 2.5 volumes)
-            let equilibriumPressure = (temperature === 38 && carbonationLevel === 2.5) ? 12 : regulatorPressure;
+            // Approximate equilibrium pressure based on temperature and carbonation
+            // In a full calculator, you'd use a lookup table, but we'll approximate here
+            let equilibriumPressure;
+            if (temperature === 38 && carbonationLevel === 2.5) {
+                equilibriumPressure = 12;  // PSI approximation for typical values
+            } else {
+                // Here we use an approximate formula for equilibrium pressure if values deviate
+                equilibriumPressure = (carbonationLevel - 1) * 7.5 + ((temperature - 32) / 10);
+            }
 
             // Calculate line pressure drop and gravity adjustment
             let linePressureDrop = lineLength * resistancePerFoot;
             let gravityAdjustment = 0.5 * kegHeightDifference;
 
-            // Calculate required PSI
+            // Calculate required PSI at the regulator to balance the system
             let requiredPSI = equilibriumPressure + linePressureDrop + gravityAdjustment;
 
             // Display the result
             document.getElementById("output").innerText = 
-                `Required Regulator PSI: ${requiredPSI.toFixed(2)} PSI`;
+                `Required Regulator Pressure: ${requiredPSI.toFixed(2)} PSI`;
         }
     </script>
 </body>
